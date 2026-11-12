@@ -34,7 +34,28 @@ jobs:
         with:
           python-version: '3.12'
 
+      # Bootstrap: on the very first PR, main may not yet contain the validator.
+      # Only the repository owner's PR can install it without executing PR code.
+      - name: Check for trusted validator
+        id: trusted_validator
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          REPO_OWNER: ${{ github.repository_owner }}
+        run: |
+          if [ -f scripts/validate_contribution.py ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "Trusted validator found in the base branch."
+          elif [ "$PR_AUTHOR" = "$REPO_OWNER" ]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "Bootstrap PR by the repository owner: validator not present in main yet."
+            echo "Skipping beginner validation for this bootstrap PR. Review changes before merging."
+          else
+            echo "::error::Trusted validator is missing from the base branch. Ask the maintainer to finish setup."
+            exit 1
+          fi
+
       - name: Validate PR changes
+        if: steps.trusted_validator.outputs.available == 'true'
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
