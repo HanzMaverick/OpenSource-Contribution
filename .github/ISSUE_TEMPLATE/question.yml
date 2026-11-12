@@ -1,0 +1,15 @@
+name: "❓ Question / Pregunta"
+description: "Ask for help with your first PR / Pide ayuda con tu primera PR"
+title: "[Question] "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: "Read [the guide](../../docs/GUIDE_EN.md) / Lee [la guía](../../docs/GUIDE_ES.md) before posting."
+  - type: textarea
+    id: problem
+    attributes:
+      label: "What do you need help with? / ¿Con qué necesitas ayuda?"
+      placeholder: "Explain what you tried / Explica lo que intentaste"
+    validations:
+      required: true
